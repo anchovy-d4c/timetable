@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090909" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ClassFlow" />
+  <title>ClassFlow // Tactical UI</title>
+  <style>
+    :root {
+      --bg: #090909;
+      --bg2: #121212;
+      --panel: rgba(20, 20, 20, 0.86);
+      --panel-2: rgba(29, 27, 25, 0.92);
+      --cream: #f2e6d3;
+      --muted: #b9ab99;
+      --sand: #d7a067;
+      --sand-2: #efc08d;
+      --olive: #748565;
+      --rose: #b65f58;
+      --violet: #8f7ce2;
+      --line: rgba(242,230,211,0.12);
+      --line-strong: rgba(242,230,211,0.24);
+      --shadow: 0 18px 60px rgba(0,0,0,0.38);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(143,124,226,0.08), transparent 20%),
+        radial-gradient(circle at top right, rgba(215,160,103,0.12), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(182,95,88,0.08), transparent 18%),
+        #090909;
+      color: var(--cream);
+      font-family: var(--sans);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,0.04) 0px,
+          rgba(255,255,255,0.04) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+      opacity: 0.2;
+      mix-blend-mode: soft-light;
+      z-index: 2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.7) 0 0.6px, transparent 1px),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.4) 0 0.6px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.5) 0 0.6px, transparent 1px);
+      background-size: 180px 180px, 220px 220px, 200px 200px;
+      opacity: 0.08;
+      z-index: 2;
+    }
+
+    .crt-flicker {
+      animation: flicker 7s linear infinite;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      1% { opacity: 0.985; }
+      2% { opacity: 0.995; }
+      4% { opacity: 0.99; }
+      8% { opacity: 0.985; }
+      70% { opacity: 1; }
+      71% { opacity: 0.992; }
+      72% { opacity: 1; }
+    }
+
+    .boot-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: #060606;
+      color: var(--sand-2);
+      font-family: var(--mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+
+    .boot-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .boot-box {
+      width: min(680px, calc(100vw - 34px));
+      border: 1px solid var(--line-strong);
+      border-radius: 26px;
+      padding: 22px;
+      background: rgba(20,20,20,0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .boot-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+      color: var(--cream);
+      font-family: var(--sans);
+    }
+
+    .boot-log {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--muted);
+      min-height: 160px;
+      white-space: pre-line;
+    }
+
+    .boot-progress {
+      margin-top: 18px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .boot-progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--sand), var(--sand-2));
+      transition: width 0.3s ease;
+    }
+
+    .app {
+      position: relative;
+      z-index: 3;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: calc(16px + var(--safe-top)) 16px calc(104px + var(--safe-bottom));
+    }
+
+    .shell {
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: 14px;
+      background: rgba(14,14,14,0.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "学習システム // CLASSFLOW";
+      position: absolute;
+      right: -58px;
+      top: 140px;
+      transform: rotate(90deg);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      color: rgba(239,192,141,0.28);
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      box-shadow: var(--shadow);
+    }
+
+    .hero-panel {
+      padding: 18px;
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      right: -26px;
+      top: -34px;
+      width: 190px;
+      height: 190px;
+      border-radius: 36px;
+      background: linear-gradient(140deg, rgba(215,160,103,0.16), rgba(143,124,226,0.06));
+      transform: rotate(14deg);
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: rgba(215,160,103,0.08);
+      color: var(--sand-2);
+      font-size: 11px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(34px, 8vw, 58px);
+      line-height: 0.88;
+      letter-spacing: -0.07em;
+      font-weight: 900;
+      max-width: 330px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-sub {
+      margin-top: 12px;
+      max-width: 390px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tech-row {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tech-chip {
+      border-radius: 999px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      font-size: 11px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      font-weight: 700;
+    }
+
+    .tech-chip.sand { background: rgba(215,160,103,0.13); color: var(--sand-2); }
+    .tech-chip.olive { background: rgba(116,133,101,0.17); color: #d6e0cd; }
+    .tech-chip.violet { background: rgba(143,124,226,0.13); color: #cabfff; }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 14px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .metric-label {
+      font-size: 10px;
+      font-family: var(--mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+    }
+
+    .side-stack {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 12px;
+    }
+
+    .mini-panel {
+      padding: 14px;
+      min-height: 134px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .panel-label {
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .panel-big {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .panel-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .next-giant {
+      margin-top: 12px;
+      padding: 16px;
+      border-radius: 28px;
+      border: 1px solid var(--line-strong);
+      background:
+        linear-gradient(135deg, rgba(215,160,103,0.11), rgba(255,255,255,0.02)),
+        rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .next-giant::before {
+      content: "NEXT";
+      position: absolute;
+      right: 12px;
+      top: 6px;
+      font-size: 54px;
+      line-height: 1;
+      color: rgba(242,230,211,0.045);
+      font-weight: 900;
+      letter-spacing: -0.08em;
+    }
+
+    .next-giant .kicker {
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--sand-2);
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .next-giant .headline {
+      font-size: clamp(24px, 5vw, 38px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      font-weight: 900;
+      position: relative;
+      z-index: 1;
+    }
+
+    .next-giant .subline {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.025);
+      color: var(--muted);
+      padding: 14px 10px;
+      font-size: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--sand);
+      color: #171412;
+      border-color: transparent;
+    }
+
+    .content-panel {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      margin-bottom: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 14px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .head-badge {
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      background: rgba(215,160,103,0.10);
+      color: var(--sand-2);
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .class-list, .subject-list, .week-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .class-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 14px;
+      align-items: start;
+      background: rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .class-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: var(--sand);
+    }
+
+    .class-card.AEH::before { background: #6f8bdf; }
+    .class-card.ACCT::before { background: #c88bff; }
+    .class-card.CFB::before { background: #d67d71; }
+    .class-card.ECON::before { background: var(--sand); }
+    .class-card.MATH::before { background: #809a73; }
+
+    .class-card.now {
+      border-color: rgba(215,160,103,0.42);
+      box-shadow: 0 14px 38px rgba(215,160,103,0.10);
+    }
+
+    .class-card.past {
+      opacity: 0.42;
+    }
+
+    .time-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 10px;
+      text-align: center;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .time-main {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .time-sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .class-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .class-name {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .live-pill {
+      flex-shrink: 0;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(182,95,88,0.18);
+      color: #f2c4be;
+      border: 1px solid rgba(182,95,88,0.24);
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .meta-pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--cream);
+      font-size: 11px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .detail {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    .empty {
+      padding: 34px 18px;
+      border-radius: 24px;
+      border: 1px dashed var(--line);
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .week-day {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .week-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .week-name {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .week-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .today-tag {
+      display: inline-block;
+      margin-left: 8px;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(215,160,103,0.14);
+      color: var(--sand-2);
+      border: 1px solid rgba(215,160,103,0.24);
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      vertical-align: middle;
+    }
+
+    .subject-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .subject-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .subject-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .subject-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .session-row {
+      display: grid;
+      grid-template-columns: 48px 115px 1fr;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    .session-row:first-of-type {
+      border-top: none;
+    }
+
+    .session-day {
+      color: var(--muted);
+      font-family: var(--mono);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .session-time {
+      font-weight: 800;
+    }
+
+    .session-meta {
+      color: var(--muted);
+    }
+
+    .alerts-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 12px;
+    }
+
+    .alerts-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .action-btn {
+      width: 100%;
+      margin-top: 14px;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: var(--sand);
+      color: #171412;
+      font-size: 13px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(14px + var(--safe-bottom));
+      width: min(720px, calc(100vw - 22px));
+      z-index: 5;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(16,16,16,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .nav-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 12px 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      background: rgba(215,160,103,0.14);
+      color: var(--sand-2);
+      border: 1px solid rgba(215,160,103,0.22);
+    }
+
+    @media (max-width: 690px) {
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .class-card {
+        grid-template-columns: 74px 1fr;
+      }
+
+      .time-main {
+        font-size: 18px;
+      }
+
+      .class-name {
+        font-size: 16px;
+      }
+
+      .session-row {
+        grid-template-columns: 40px 94px 1fr;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body class="crt-flicker">
+  <div class="boot-screen" id="bootScreen">
+    <div class="boot-box">
+      <div class="boot-title">CLASSFLOW // BOOT SEQUENCE</div>
+      <div class="boot-log" id="bootLog"></div>
+      <div class="boot-progress"><div id="bootBar"></div></div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="shell">
+      <section class="top-grid">
+        <div class="panel hero-panel" id="heroPanel"></div>
+        <div class="side-stack">
+          <div class="panel mini-panel" id="sidePanelTop"></div>
+          <div class="panel mini-panel" id="sidePanelBottom"></div>
+        </div>
+      </section>
+
+      <section class="next-giant" id="nextGiant"></section>
+
+      <section class="tabs" id="tabs"></section>
+      <main id="content"></main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="today">Today</button>
+    <button class="nav-btn" data-tab="week">Week</button>
+    <button class="nav-btn" data-tab="subjects">Subjects</button>
+    <button class="nav-btn" data-tab="alerts">Alerts</button>
+  </nav>
+
+  <script>
+    const CLASSES = [
+      {day:1,s:'09:00',e:'10:30',name:'Academic English for Humanities',code:'AEH',type:'Tutorial',loc:'L5-W309',staff:'Jerome Van Putten'},
+      {day:1,s:'11:00',e:'12:00',name:'Computing for Business',code:'CFB',type:'Lecture',loc:'Online',staff:'Frank Jia'},
+      {day:1,s:'13:00',e:'14:00',name:'Economics: Microeconomics',code:'ECON',type:'Lecture',loc:'E19-OShane 105',staff:'Samangi Bandaranayake'},
+      {day:1,s:'15:00',e:'16:00',name:'Mathematics for Commerce',code:'MATH',type:'Lecture',loc:'F10-Griff M18',staff:'Kavitha Nagabooshanam'},
+      {day:2,s:'10:00',e:'11:00',name:'Mathematics for Commerce',code:'MATH',type:'Tutorial',loc:'L5-LG13',staff:'Kavitha Nagabooshanam'},
+      {day:2,s:'12:00',e:'13:00',name:'Accounting',code:'ACCT',type:'Lecture',loc:'G15-WebA',staff:'Shima Forughi'},
+      {day:2,s:'13:30',e:'14:30',name:'Academic English for Humanities',code:'AEH',type:'Workshop',loc:'L5-W303',staff:'Jerome Van Putten'},
+      {day:2,s:'14:30',e:'16:00',name:'Academic English for Humanities',code:'AEH',type:'Tutorial',loc:'L5-W303',staff:'Jerome Van Putten'},
+      {day:3,s:'09:00',e:'10:30',name:'Accounting',code:'ACCT',type:'Tutorial',loc:'G6-B107',staff:'Shima Forughi'},
+      {day:3,s:'10:30',e:'12:00',name:'Computing for Business',code:'CFB',type:'Tutorial',loc:'L5-G14',staff:'Cara Reyes'},
+      {day:3,s:'13:00',e:'14:00',name:'Economics: Microeconomics',code:'ECON',type:'Lecture',loc:'E19-OShane 105',staff:'Samangi Bandaranayake'},
+      {day:3,s:'16:00',e:'17:00',name:'Mathematics for Commerce',code:'MATH',type:'Lecture',loc:'F10-Griff M18',staff:'Kavitha Nagabooshanam'},
+      {day:3,s:'17:00',e:'18:00',name:'Mathematics for Commerce',code:'MATH',type:'Tutorial',loc:'G6-B201',staff:'Kavitha Nagabooshanam'},
+      {day:4,s:'09:00',e:'11:00',name:'Economics: Microeconomics',code:'ECON',type:'Tutorial',loc:'G6-B122',staff:'Samangi Bandaranayake'},
+      {day:4,s:'12:00',e:'13:00',name:'Mathematics for Commerce',code:'MATH',type:'Lecture',loc:'D23-MatB',staff:'Kavitha Nagabooshanam'},
+      {day:5,s:'10:00',e:'12:00',name:'Academic English for Humanities',code:'AEH',type:'Workshop',loc:'L5-W301',staff:'Mariann Banfi, Peter Alexander'},
+      {day:5,s:'12:00',e:'13:00',name:'Mathematics for Commerce',code:'MATH',type:'Tutorial',loc:'G6-B107',staff:'Kavitha Nagabooshanam'},
+      {day:5,s:'16:00',e:'17:30',name:'Academic English for Humanities',code:'AEH',type:'Tutorial',loc:'G6-B202',staff:'Jerome Van Putten'}
+    ];
+
+    const DAY_NAMES = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const SHORT_DAY = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+    let currentTab = 'today';
+    let reminderTimers = [];
+
+    function toMinutes(t) {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function formatTime(t) {
+      const [hh, mm] = t.split(':').map(Number);
+      const suffix = hh >= 12 ? 'PM' : 'AM';
+      const h12 = hh % 12 || 12;
+      return mm === 0 ? `${h12} ${suffix}` : `${h12}:${String(mm).padStart(2, '0')} ${suffix}`;
+    }
+
+    function getWeekday(now = new Date()) {
+      const d = now.getDay();
+      return d >= 1 && d <= 5 ? d : null;
+    }
+
+    function getNowMinutes(now = new Date()) {
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function classesForDay(day) {
+      return CLASSES.filter(c => c.day === day).sort((a, b) => toMinutes(a.s) - toMinutes(b.s));
+    }
+
+    function getStatus(c, now = new Date()) {
+      const today = getWeekday(now);
+      if (today !== c.day) return 'other';
+      const mins = getNowMinutes(now);
+      if (mins > toMinutes(c.e)) return 'past';
+      if (mins >= toMinutes(c.s)) return 'now';
+      return 'upcoming';
+    }
+
+    function nextClassForToday(now = new Date()) {
+      const day = getWeekday(now);
+      if (!day) return null;
+      const mins = getNowMinutes(now);
+      const list = classesForDay(day);
+      return list.find(c => toMinutes(c.s) > mins) || list.find(c => toMinutes(c.s) <= mins && toMinutes(c.e) >= mins) || null;
+    }
+
+    function countdownLabel(c, now = new Date()) {
+      if (!c) return 'No pending class';
+      const status = getStatus(c, now);
+      if (status === 'now') return 'In session';
+      const delta = toMinutes(c.s) - getNowMinutes(now);
+      const h = Math.floor(delta / 60);
+      const m = delta % 60;
+      return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+
+    function renderHeader() {
+      const now = new Date();
+      const day = getWeekday(now);
+      const next = nextClassForToday(now);
+      const todayClasses = day ? classesForDay(day) : [];
+      const dateText = now.toLocaleDateString('en-AU', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      document.getElementById('heroPanel').innerHTML = `
+        <div class="status-tag">UNSW College // Live Interface</div>
+        <h1 class="hero-title">TACTICAL<br>TIMETABLE</h1>
+        <div class="hero-sub">
+          Daily class tracking wrapped in a retro-futurist control surface because apparently basic functionality was not dramatic enough.
+        </div>
+        <div class="tech-row">
+          <span class="tech-chip sand">${day ? DAY_NAMES[day] : 'Weekend'}</span>
+          <span class="tech-chip olive">${todayClasses.length} class${todayClasses.length === 1 ? '' : 'es'}</span>
+          <span class="tech-chip violet">${now.toLocaleTimeString('en-AU')}</span>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-label">Date</div>
+            <div class="metric-value">${now.getDate()}</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Mode</div>
+            <div class="metric-value">${day ? 'Live' : 'Idle'}</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Cycle</div>
+            <div class="metric-value">${dateText.split(',')[0]}</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('sidePanelTop').innerHTML = `
+        <div class="panel-label">System Status</div>
+        <div class="panel-big">${day ? (next ? countdownLabel(next, now) : 'Clear') : 'Weekend'}</div>
+        <div class="panel-copy">${next ? `${next.name} starts at ${formatTime(next.s)}.` : 'No more classes queued right now.'}</div>
+      `;
+
+      document.getElementById('sidePanelBottom').innerHTML = `
+        <div class="panel-label">Daily Briefing</div>
+        <div class="panel-big">${todayClasses.length}</div>
+        <div class="panel-copy">${day ? `Scheduled items for ${DAY_NAMES[day]}.` : 'No weekday schedule active.'}<br>${dateText}</div>
+      `;
+
+      document.getElementById('nextGiant').innerHTML = next
+        ? `
+          <div class="kicker">Next class module</div>
+          <div class="headline">${next.name}</div>
+          <div class="subline">${formatTime(next.s)} to ${formatTime(next.e)} · ${next.type} · ${next.loc}</div>
+        `
+        : `
+          <div class="kicker">Next class module</div>
+          <div class="headline">${day ? 'Schedule Clear' : 'Weekend State'}</div>
+          <div class="subline">${day ? 'No more classes for today.' : 'No weekday classes running right now.'}</div>
+        `;
+    }
+
+    function classCard(c, forcedStatus = null) {
+      const status = forcedStatus || getStatus(c);
+      return `
+        <article class="class-card ${c.code} ${status === 'past' ? 'past' : ''} ${status === 'now' ? 'now' : ''}">
+          <div class="time-box">
+            <div class="time-main">${formatTime(c.s)}</div>
+            <div class="time-sub">to ${formatTime(c.e)}</div>
+          </div>
+          <div>
+            <div class="class-head">
+              <h3 class="class-name">${c.name}</h3>
+              ${status === 'now' ? '<span class="live-pill">Live</span>' : ''}
+            </div>
+            <div class="meta-row">
+              <span class="meta-pill">${c.type}</span>
+              <span class="meta-pill">${c.code}</span>
+            </div>
+            <div class="detail">📍 ${c.loc}</div>
+            <div class="detail">👤 ${c.staff}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderToday() {
+      const day = getWeekday();
+      const list = day ? classesForDay(day) : [];
+      return `
+        <section class="content-panel">
+          <div class="section-head">
+            <h2>Today Log</h2>
+            <span class="head-badge">${day ? DAY_NAMES[day] : 'Weekend'}</span>
+          </div>
+          ${
+            !day
+              ? '<div class="empty">No classes today. Miraculously, you are free.</div>'
+              : list.length
+                ? `<div class="class-list">${list.map(c => classCard(c)).join('')}</div>`
+                : '<div class="empty">Nothing scheduled for today.</div>'
+          }
+        </section>
+      `;
+    }
+
+    function renderWeek() {
+      const today = getWeekday();
+      let html = `
+        <section class="content-panel">
+          <div class="section-head">
+            <h2>Week Matrix</h2>
+            <span class="head-badge">Mon–Fri</span>
+          </div>
+          <div class="week-list">
+      `;
+      for (let d = 1; d <= 5; d++) {
+        const list = classesForDay(d);
+        html += `
+          <div class="week-day">
+            <div class="week-head">
+              <div class="week-name">${DAY_NAMES[d]} ${today === d ? '<span class="today-tag">Today</span>' : ''}</div>
+              <div class="week-count">${list.length} class${list.length === 1 ? '' : 'es'}</div>
+            </div>
+            ${
+              list.length
+                ? list.map(c => classCard(c, today === d ? null : 'other')).join('')
+                : '<div class="empty">No classes.</div>'
+            }
+          </div>
+        `;
+      }
+      html += `</div></section>`;
+      return html;
+    }
+
+    function renderSubjects() {
+      const codes = [...new Set(CLASSES.map(c => c.code))];
+      return `
+        <section class="content-panel">
+          <div class="section-head">
+            <h2>Subject Index</h2>
+            <span class="head-badge">${codes.length} loaded</span>
+          </div>
+          <div class="subject-list">
+            ${codes.map(code => {
+              const list = CLASSES.filter(c => c.code === code).sort((a, b) => a.day - b.day || toMinutes(a.s) - toMinutes(b.s));
+              return `
+                <div class="subject-card">
+                  <div class="subject-head">
+                    <div class="subject-title">${list[0].name}</div>
+                    <div class="subject-count">${list.length} sessions/week</div>
+                  </div>
+                  ${list.map(c => `
+                    <div class="session-row">
+                      <div class="session-day">${SHORT_DAY[c.day]}</div>
+                      <div class="session-time">${formatTime(c.s)}–${formatTime(c.e)}</div>
+                      <div class="session-meta">${c.type} · ${c.loc}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function requestNotifications() {
+      if (!('Notification' in window)) {
+        alert('Notifications are not supported in this browser.');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') scheduleTodayReminders();
+        render();
+      });
+    }
+
+    function scheduleTodayReminders() {
+      reminderTimers.forEach(clearTimeout);
+      reminderTimers = [];
+
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      const day = getWeekday();
+      if (!day) return;
+
+      const now = new Date();
+      const mins = getNowMinutes(now);
+
+      classesForDay(day).forEach(c => {
+        const delay = (toMinutes(c.s) - 15 - mins) * 60000;
+        if (delay > 0) {
+          const timer = setTimeout(() => {
+            new Notification('Class in 15 minutes', {
+              body: `${c.name} · ${c.type} · ${c.loc} · starts ${formatTime(c.s)}`
+            });
+          }, delay);
+          reminderTimers.push(timer);
+        }
+      });
+    }
+
+    function renderAlerts() {
+      const permission = 'Notification' in window ? Notification.permission : 'unsupported';
+      const statusText =
+        permission === 'granted'
+          ? 'Notifications are on.'
+          : permission === 'denied'
+            ? 'Notifications are blocked in browser settings.'
+            : permission === 'unsupported'
+              ? 'Notifications are not supported here.'
+              : 'Notifications are off.';
+
+      return `
+        <section class="content-panel">
+          <div class="section-head">
+            <h2>Alerts</h2>
+            <span class="head-badge">System</span>
+          </div>
+
+          <div class="alerts-card">
+            <h3 class="alerts-title">Class reminders</h3>
+            <div class="note">
+              Enable local reminders for the current day. The app will notify you 15 minutes before each class.
+            </div>
+            <button class="action-btn" onclick="requestNotifications()">Enable reminders</button>
+            <div class="status">${statusText}</div>
+          </div>
+
+          <div class="alerts-card">
+            <h3 class="alerts-title">Night-before messaging</h3>
+            <div class="note">
+              Instagram or Messenger auto-DMs are still fantasy land from a plain page alone. Use Telegram or another external automation if you want 10 PM nightly reminders.
+            </div>
+          </div>
+
+          <div class="alerts-card">
+            <h3 class="alerts-title">iPhone install</h3>
+            <div class="note">
+              Open the hosted site in Safari, tap Share, then Add to Home Screen. After that it feels much more app-like and much less like a website pretending to have ambitions.
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTabs() {
+      const defs = [
+        ['today', 'Today'],
+        ['week', 'Week'],
+        ['subjects', 'Subjects'],
+        ['alerts', 'Alerts']
+      ];
+
+      document.getElementById('tabs').innerHTML = defs.map(([id, label]) => `
+        <button class="tab ${currentTab === id ? 'active' : ''}" data-tab="${id}">${label}</button>
+      `).join('');
+
+      document.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === currentTab);
+        btn.onclick = () => switchTab(btn.dataset.tab);
+      });
+    }
+
+    function renderContent() {
+      const content = document.getElementById('content');
+      if (currentTab === 'today') content.innerHTML = renderToday();
+      else if (currentTab === 'week') content.innerHTML = renderWeek();
+      else if (currentTab === 'subjects') content.innerHTML = renderSubjects();
+      else content.innerHTML = renderAlerts();
+    }
+
+    function render() {
+      renderHeader();
+      renderTabs();
+      renderContent();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      render();
+    }
+
+    function runBootSequence() {
+      const bootScreen = document.getElementById('bootScreen');
+      const bootLog = document.getElementById('bootLog');
+      const bootBar = document.getElementById('bootBar');
+
+      const lines = [
+        'INITIALIZING CLASSFLOW CORE...',
+        'SYNCING DAILY TIMETABLE MODULE...',
+        'LOADING SUBJECT INDEX...',
+        'MOUNTING CONTROL INTERFACE...',
+        'ENABLING CRT NOISE FOR UNNECESSARY DRAMA...',
+        'SYSTEM READY.'
+      ];
+
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < lines.length) {
+          bootLog.textContent += lines[index] + '\\n';
+          bootBar.style.width = `${((index + 1) / lines.length) * 100}%`;
+          index++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            bootScreen.classList.add('hidden');
+          }, 500);
+        }
+      }, 260);
+    }
+
+    setInterval(() => {
+      renderHeader();
+      if (currentTab === 'today') renderContent();
+    }, 1000);
+
+    setInterval(() => {
+      scheduleTodayReminders();
+    }, 60000);
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      scheduleTodayReminders();
+    }
+
+    render();
+    runBootSequence();
+  </script>
+</body>
+</html>
