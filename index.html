@@ -3,33 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#0a0a0f" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CLSFLW" />
-  <title>CLSFLW // Timetable System</title>
+  <meta name="apple-mobile-web-app-title" content="NERV-EDU" />
+  <title>NERV EDUCATION SYSTEM // MAGI-CLASS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
-      --coral: #d4654a;
-      --coral-dark: #1a1210;
-      --sage: #7a9a6d;
-      --sage-dark: #141a12;
-      --cream: #f5f0e8;
-      --cream-dark: #1a1916;
-      --orange: #e8a554;
-      --orange-dark: #1a1610;
-      --slate: #2a2a2a;
-      --muted: #6a6a6a;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.15);
+      --bg: #0a0a0f;
+      --bg-secondary: #12121a;
+      --neon: #CCFF00;
+      --neon-dim: rgba(204, 255, 0, 0.3);
+      --neon-glow: rgba(204, 255, 0, 0.15);
+      --violet: #8B7DFF;
+      --violet-dim: rgba(139, 125, 255, 0.3);
+      --violet-glow: rgba(139, 125, 255, 0.15);
+      --red: #FF3333;
+      --red-dim: rgba(255, 51, 51, 0.3);
+      --text: #e0e0e0;
+      --text-dim: #6a6a7a;
+      --border: rgba(139, 125, 255, 0.2);
+      --border-neon: rgba(204, 255, 0, 0.3);
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --mono: "JetBrains Mono", monospace;
-      --sans: "Space Grotesk", sans-serif;
+      --display: "Orbitron", sans-serif;
     }
 
     * {
@@ -41,8 +42,8 @@
       margin: 0;
       min-height: 100%;
       background: var(--bg);
-      color: var(--cream);
-      font-family: var(--sans);
+      color: var(--text);
+      font-family: var(--mono);
     }
 
     /* Scanline overlay */
@@ -55,21 +56,33 @@
         0deg,
         transparent 0px,
         transparent 2px,
-        rgba(0,0,0,0.15) 2px,
-        rgba(0,0,0,0.15) 4px
+        rgba(0,0,0,0.2) 2px,
+        rgba(0,0,0,0.2) 4px
       );
       z-index: 100;
     }
 
+    /* CRT flicker */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+      z-index: 99;
+    }
+
+    /* NERV Boot Screen */
     .boot-screen {
       position: fixed;
       inset: 0;
       z-index: 200;
       background: var(--bg);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
     }
 
     .boot-screen.hidden {
@@ -77,65 +90,167 @@
       visibility: hidden;
     }
 
+    .nerv-logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .nerv-logo svg {
+      width: 100%;
+      height: 100%;
+      fill: var(--neon);
+      filter: drop-shadow(0 0 20px var(--neon-dim));
+      animation: logo-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes logo-pulse {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 20px var(--neon-dim)); }
+      50% { opacity: 0.7; filter: drop-shadow(0 0 40px var(--neon)); }
+    }
+
+    .boot-title {
+      font-family: var(--display);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      color: var(--neon);
+      text-shadow: 0 0 30px var(--neon-dim);
+      margin-bottom: 8px;
+    }
+
+    .boot-subtitle {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--violet);
+      margin-bottom: 40px;
+    }
+
     .boot-box {
       width: min(500px, calc(100vw - 40px));
-      border: 1px solid var(--border-strong);
-      padding: 24px;
-      background: var(--slate);
+      border: 1px solid var(--border-neon);
+      background: rgba(204, 255, 0, 0.02);
+      padding: 20px;
     }
 
     .boot-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
     }
 
-    .boot-title {
-      font-family: var(--mono);
-      font-size: 14px;
+    .boot-header-title {
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.1em;
-      color: var(--cream);
+      letter-spacing: 0.15em;
+      color: var(--neon);
     }
 
     .boot-code {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
+      font-size: 10px;
+      color: var(--text-dim);
     }
 
     .boot-log {
-      font-family: var(--mono);
-      font-size: 12px;
+      font-size: 11px;
       line-height: 2;
-      color: var(--sage);
-      min-height: 140px;
+      color: var(--neon);
+      min-height: 120px;
       white-space: pre-line;
+      text-shadow: 0 0 10px var(--neon-dim);
     }
 
     .boot-progress {
       margin-top: 16px;
-      height: 4px;
+      height: 3px;
       background: var(--border);
+      position: relative;
+      overflow: hidden;
     }
 
     .boot-progress > div {
       height: 100%;
       width: 0%;
-      background: var(--coral);
-      transition: width 0.2s ease;
+      background: linear-gradient(90deg, var(--violet), var(--neon));
+      box-shadow: 0 0 20px var(--neon);
+      transition: width 0.3s ease;
     }
 
+    /* Warning Banner */
+    .warning-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      padding: 6px 12px;
+      background: var(--red);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      animation: warning-flash 0.5s ease-in-out infinite;
+    }
+
+    .warning-banner.active {
+      display: flex;
+    }
+
+    @keyframes warning-flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .warning-text {
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: white;
+    }
+
+    /* App Container */
     .app {
       max-width: 800px;
       margin: 0 auto;
       padding: calc(16px + var(--safe-top)) 12px calc(90px + var(--safe-bottom));
     }
 
-    /* Bento Grid Layout */
+    /* Header Section */
+    .header-section {
+      margin-bottom: 16px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .system-id {
+      font-family: var(--display);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+    }
+
+    .system-id span {
+      color: var(--neon);
+    }
+
+    .jp-badge {
+      font-size: 14px;
+      color: var(--violet);
+      letter-spacing: 0.1em;
+    }
+
+    /* Bento Grid */
     .bento-grid {
       display: grid;
       gap: 8px;
@@ -143,19 +258,13 @@
 
     .bento-top {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.2fr 0.8fr;
       gap: 8px;
     }
 
     .bento-middle {
       display: grid;
-      grid-template-columns: 1.4fr 0.6fr;
-      gap: 8px;
-    }
-
-    .bento-bottom {
-      display: grid;
-      grid-template-columns: 0.6fr 1.4fr;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
 
@@ -165,154 +274,151 @@
       padding: 16px;
       position: relative;
       overflow: hidden;
+      background: var(--bg-secondary);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--violet), transparent);
+      opacity: 0.5;
     }
 
     /* Card Variants */
-    .card-coral {
-      background: var(--coral);
+    .card-neon {
+      background: var(--neon);
       color: var(--bg);
-      border-color: var(--coral);
+      border-color: var(--neon);
     }
 
-    .card-sage {
-      background: var(--sage);
+    .card-neon::before {
+      display: none;
+    }
+
+    .card-violet {
+      background: var(--violet);
       color: var(--bg);
-      border-color: var(--sage);
+      border-color: var(--violet);
     }
 
-    .card-cream {
-      background: var(--cream);
-      color: var(--bg);
-      border-color: var(--cream);
+    .card-violet::before {
+      display: none;
     }
 
-    .card-orange {
-      background: var(--orange);
-      color: var(--bg);
-      border-color: var(--orange);
+    .card-outline-neon {
+      background: rgba(204, 255, 0, 0.03);
+      border-color: var(--border-neon);
     }
 
-    .card-dark {
-      background: var(--slate);
-      color: var(--cream);
+    .card-outline-neon::before {
+      background: linear-gradient(90deg, transparent, var(--neon), transparent);
     }
 
-    .card-outline {
-      background: transparent;
-      border: 1px solid var(--border-strong);
+    .card-outline-violet {
+      background: rgba(139, 125, 255, 0.03);
+      border-color: var(--border);
     }
 
-    /* Typography */
-    .label {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      opacity: 0.7;
+    /* Corner Decorations */
+    .corner-marks {
+      position: absolute;
+      inset: 6px;
+      pointer-events: none;
     }
 
-    .label-jp {
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      opacity: 0.6;
+    .corner-marks::before,
+    .corner-marks::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-color: currentColor;
+      border-style: solid;
+      border-width: 0;
     }
 
-    .title-giant {
-      font-family: var(--sans);
-      font-size: clamp(48px, 12vw, 72px);
-      font-weight: 700;
-      line-height: 0.85;
-      letter-spacing: -0.04em;
+    .corner-marks::before {
+      top: 0;
+      left: 0;
+      border-top-width: 1px;
+      border-left-width: 1px;
     }
 
-    .title-large {
-      font-family: var(--sans);
-      font-size: clamp(28px, 6vw, 40px);
-      font-weight: 700;
-      line-height: 0.9;
-      letter-spacing: -0.03em;
-    }
-
-    .title-medium {
-      font-family: var(--sans);
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-
-    .code-text {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-    }
-
-    .data-value {
-      font-family: var(--mono);
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+    .corner-marks::after {
+      bottom: 0;
+      right: 0;
+      border-bottom-width: 1px;
+      border-right-width: 1px;
     }
 
     /* Hero Card */
     .hero-card {
-      min-height: 220px;
+      min-height: 200px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .hero-card .corner-code {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-family: var(--mono);
+    .hero-label {
       font-size: 10px;
-      opacity: 0.5;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      opacity: 0.7;
     }
 
-    .hero-card .jp-text {
+    .hero-day {
+      font-family: var(--display);
+      font-size: clamp(56px, 14vw, 80px);
+      font-weight: 900;
+      line-height: 0.85;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-date {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+
+    .hero-jp {
       position: absolute;
       right: 16px;
       bottom: 16px;
       writing-mode: vertical-rl;
-      font-size: 14px;
-      letter-spacing: 0.1em;
+      font-size: 16px;
+      letter-spacing: 0.15em;
       opacity: 0.4;
-    }
-
-    /* Info Card */
-    .info-card {
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .arrow-icon {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
-    }
-
-    .arrow-icon svg {
-      width: 100%;
-      height: 100%;
     }
 
     /* Status Card */
     .status-card {
-      min-height: 140px;
+      min-height: 200px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .status-indicator {
+    .status-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+    }
+
+    .status-time {
+      font-family: var(--display);
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--neon);
+      text-shadow: 0 0 30px var(--neon-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .status-row {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -321,39 +427,90 @@
     .status-dot {
       width: 8px;
       height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      animation: pulse 2s ease-in-out infinite;
+      background: var(--neon);
+      box-shadow: 0 0 10px var(--neon);
+      animation: pulse 1.5s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--neon); }
+      50% { opacity: 0.5; box-shadow: 0 0 20px var(--neon); }
     }
 
-    /* Data Display */
-    .data-row {
+    .status-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--neon);
+    }
+
+    /* Sync Card */
+    .sync-card {
+      min-height: 140px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      align-items: baseline;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
     }
 
-    .data-row:last-child {
-      border-bottom: none;
+    .sync-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+    }
+
+    .sync-title {
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-top: 8px;
+    }
+
+    .sync-meta {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+    }
+
+    .sync-countdown {
+      font-family: var(--display);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    /* Data Card */
+    .data-card {
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .data-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+    }
+
+    .data-value {
+      font-family: var(--display);
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1;
     }
 
     .data-bars {
       display: flex;
-      gap: 3px;
-      margin-top: 12px;
+      gap: 4px;
+      margin-top: 8px;
     }
 
     .data-bar {
-      width: 16px;
+      flex: 1;
+      height: 24px;
       background: currentColor;
-      opacity: 0.3;
+      opacity: 0.2;
     }
 
     .data-bar.active {
@@ -361,42 +518,82 @@
     }
 
     /* Tabs */
+    .tabs-section {
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      padding: 8px;
+    }
+
+    .tabs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tabs-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--violet);
+    }
+
+    .tabs-code {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
     .tabs-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin: 12px 0;
+      gap: 6px;
     }
 
     .tab-btn {
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--muted);
+      color: var(--text-dim);
       padding: 12px 8px;
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       cursor: pointer;
       transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .tab-btn::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: transparent;
+      transition: background 0.15s ease;
     }
 
     .tab-btn:hover {
-      border-color: var(--border-strong);
-      color: var(--cream);
+      border-color: var(--border-neon);
+      color: var(--neon);
     }
 
     .tab-btn.active {
-      background: var(--cream);
+      background: var(--neon);
       color: var(--bg);
-      border-color: var(--cream);
+      border-color: var(--neon);
     }
 
     /* Content Panel */
     .content-panel {
       border: 1px solid var(--border);
-      background: var(--slate);
+      background: var(--bg-secondary);
     }
 
     .panel-header {
@@ -405,24 +602,23 @@
       align-items: center;
       padding: 14px 16px;
       border-bottom: 1px solid var(--border);
+      background: rgba(139, 125, 255, 0.03);
     }
 
     .panel-title {
-      font-family: var(--mono);
+      font-family: var(--display);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--cream);
+      letter-spacing: 0.15em;
+      color: var(--violet);
     }
 
     .panel-badge {
-      font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      padding: 4px 8px;
-      background: var(--coral);
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      background: var(--neon);
       color: var(--bg);
     }
 
@@ -436,11 +632,16 @@
       margin-bottom: 8px;
       display: grid;
       grid-template-columns: 100px 1fr;
-      background: rgba(255,255,255,0.02);
+      background: rgba(139, 125, 255, 0.02);
+      transition: all 0.2s ease;
     }
 
     .class-card:last-child {
       margin-bottom: 0;
+    }
+
+    .class-card:hover {
+      border-color: var(--border-neon);
     }
 
     .class-time-block {
@@ -450,19 +651,20 @@
       flex-direction: column;
       justify-content: center;
       text-align: center;
+      background: rgba(139, 125, 255, 0.05);
     }
 
     .class-time-main {
-      font-family: var(--mono);
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--cream);
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--neon);
+      letter-spacing: 0.02em;
     }
 
     .class-time-sub {
-      font-family: var(--mono);
       font-size: 10px;
-      color: var(--muted);
+      color: var(--text-dim);
       margin-top: 4px;
     }
 
@@ -478,38 +680,38 @@
     }
 
     .class-name {
-      font-family: var(--sans);
-      font-size: 15px;
+      font-family: var(--display);
+      font-size: 13px;
       font-weight: 600;
-      color: var(--cream);
-      line-height: 1.2;
+      color: var(--text);
+      line-height: 1.3;
+      letter-spacing: 0.02em;
     }
 
     .class-code {
-      font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.1em;
-      padding: 3px 6px;
-      background: var(--coral);
+      padding: 4px 8px;
+      background: var(--violet);
       color: var(--bg);
       flex-shrink: 0;
     }
 
-    .class-code.AEH { background: #6f8bdf; }
-    .class-code.ACCT { background: #c88bff; }
-    .class-code.CFB { background: var(--coral); }
-    .class-code.ECON { background: var(--orange); }
-    .class-code.MATH { background: var(--sage); }
+    .class-code.AEH { background: var(--violet); }
+    .class-code.ACCT { background: #a855f7; }
+    .class-code.CFB { background: var(--neon); color: var(--bg); }
+    .class-code.ECON { background: #ff6b6b; }
+    .class-code.MATH { background: #4ecdc4; }
 
     .class-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-top: 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
     }
 
     .class-meta span {
@@ -518,44 +720,55 @@
       gap: 4px;
     }
 
+    /* Live State */
     .class-card.now {
-      border-color: var(--coral);
-      box-shadow: 0 0 20px rgba(212,101,74,0.15);
+      border-color: var(--neon);
+      box-shadow: 0 0 30px var(--neon-glow), inset 0 0 30px var(--neon-glow);
     }
 
     .class-card.now .class-time-block {
-      background: var(--coral);
+      background: var(--neon);
     }
 
-    .class-card.now .class-time-main,
-    .class-card.now .class-time-sub {
+    .class-card.now .class-time-main {
       color: var(--bg);
     }
 
+    .class-card.now .class-time-sub {
+      color: var(--bg);
+      opacity: 0.7;
+    }
+
     .class-card.past {
-      opacity: 0.4;
+      opacity: 0.35;
     }
 
     .live-tag {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-family: var(--mono);
+      gap: 6px;
+      font-family: var(--display);
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 3px 6px;
-      background: var(--coral);
-      color: var(--bg);
+      letter-spacing: 0.15em;
+      padding: 4px 8px;
+      background: var(--red);
+      color: white;
+      animation: live-pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes live-pulse {
+      0%, 100% { box-shadow: 0 0 10px var(--red-dim); }
+      50% { box-shadow: 0 0 20px var(--red); }
     }
 
     .live-tag::before {
       content: "";
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--bg);
-      animation: pulse 1s ease-in-out infinite;
+      background: white;
+      animation: pulse 0.8s ease-in-out infinite;
     }
 
     /* Week View */
@@ -573,35 +786,41 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 14px;
-      background: rgba(255,255,255,0.03);
+      background: rgba(139, 125, 255, 0.05);
       border-bottom: 1px solid var(--border);
     }
 
     .week-day-name {
-      font-family: var(--sans);
-      font-size: 16px;
+      font-family: var(--display);
+      font-size: 14px;
       font-weight: 600;
-      color: var(--cream);
+      color: var(--text);
+      letter-spacing: 0.05em;
     }
 
     .week-day-count {
-      font-family: var(--mono);
       font-size: 10px;
-      color: var(--muted);
+      color: var(--text-dim);
       letter-spacing: 0.08em;
     }
 
     .today-badge {
       display: inline-block;
-      margin-left: 8px;
-      font-family: var(--mono);
+      margin-left: 10px;
+      font-family: var(--display);
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 3px 6px;
-      background: var(--sage);
+      letter-spacing: 0.15em;
+      padding: 4px 8px;
+      background: var(--neon);
       color: var(--bg);
       vertical-align: middle;
+      animation: today-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes today-glow {
+      0%, 100% { box-shadow: 0 0 10px var(--neon-dim); }
+      50% { box-shadow: 0 0 20px var(--neon); }
     }
 
     .week-day-content {
@@ -612,7 +831,7 @@
     .subject-card {
       border: 1px solid var(--border);
       margin-bottom: 8px;
-      background: rgba(255,255,255,0.02);
+      background: rgba(139, 125, 255, 0.02);
     }
 
     .subject-card:last-child {
@@ -625,19 +844,20 @@
       align-items: center;
       padding: 14px;
       border-bottom: 1px solid var(--border);
+      background: rgba(139, 125, 255, 0.05);
     }
 
     .subject-title {
-      font-family: var(--sans);
-      font-size: 15px;
+      font-family: var(--display);
+      font-size: 13px;
       font-weight: 600;
-      color: var(--cream);
+      color: var(--text);
+      letter-spacing: 0.02em;
     }
 
     .subject-count {
-      font-family: var(--mono);
       font-size: 10px;
-      color: var(--muted);
+      color: var(--neon);
       letter-spacing: 0.08em;
     }
 
@@ -648,7 +868,7 @@
       align-items: center;
       padding: 10px 14px;
       border-bottom: 1px solid var(--border);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .session-row:last-child {
@@ -656,23 +876,23 @@
     }
 
     .session-day {
-      font-family: var(--mono);
-      font-size: 11px;
+      font-family: var(--display);
+      font-size: 10px;
       font-weight: 700;
-      color: var(--coral);
+      color: var(--violet);
       letter-spacing: 0.05em;
     }
 
     .session-time {
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      color: var(--cream);
+      color: var(--neon);
     }
 
     .session-meta {
-      font-size: 12px;
-      color: var(--muted);
+      font-size: 11px;
+      color: var(--text-dim);
     }
 
     /* Alerts */
@@ -680,73 +900,99 @@
       border: 1px solid var(--border);
       padding: 16px;
       margin-bottom: 8px;
-      background: rgba(255,255,255,0.02);
+      background: rgba(139, 125, 255, 0.02);
     }
 
     .alert-card:last-child {
       margin-bottom: 0;
     }
 
+    .alert-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .alert-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--violet);
+      color: var(--bg);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .alert-title {
-      font-family: var(--sans);
-      font-size: 15px;
+      font-family: var(--display);
+      font-size: 13px;
       font-weight: 600;
-      color: var(--cream);
-      margin-bottom: 8px;
+      color: var(--text);
+      letter-spacing: 0.02em;
     }
 
     .alert-text {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
     }
 
     .action-btn {
       width: 100%;
       margin-top: 14px;
-      border: none;
+      border: 1px solid var(--neon);
       padding: 12px 16px;
-      background: var(--cream);
-      color: var(--bg);
-      font-family: var(--mono);
+      background: transparent;
+      color: var(--neon);
+      font-family: var(--display);
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      letter-spacing: 0.15em;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .action-btn:hover {
-      background: var(--coral);
+      background: var(--neon);
+      color: var(--bg);
+      box-shadow: 0 0 30px var(--neon-dim);
     }
 
-    .status-text {
+    .alert-status {
       margin-top: 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
     }
 
     /* Empty State */
     .empty-state {
-      padding: 40px 20px;
+      padding: 50px 20px;
       text-align: center;
       border: 1px dashed var(--border);
     }
 
+    .empty-state .empty-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
     .empty-state .empty-title {
-      font-family: var(--mono);
+      font-family: var(--display);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.1em;
-      color: var(--cream);
+      letter-spacing: 0.15em;
+      color: var(--violet);
       margin-bottom: 8px;
     }
 
     .empty-state .empty-text {
-      font-size: 13px;
-      color: var(--muted);
+      font-size: 12px;
+      color: var(--text-dim);
     }
 
     /* Bottom Nav */
@@ -758,10 +1004,10 @@
       width: min(780px, calc(100vw - 24px));
       z-index: 50;
       padding: 6px;
-      border: 1px solid var(--border-strong);
-      background: rgba(10,10,10,0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-neon);
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px;
@@ -770,7 +1016,7 @@
     .nav-btn {
       border: 1px solid transparent;
       background: transparent;
-      color: var(--muted);
+      color: var(--text-dim);
       padding: 10px 8px;
       font-family: var(--mono);
       font-size: 10px;
@@ -782,19 +1028,31 @@
     }
 
     .nav-btn:hover {
-      color: var(--cream);
+      color: var(--neon);
     }
 
     .nav-btn.active {
-      background: var(--cream);
+      background: var(--neon);
       color: var(--bg);
+      box-shadow: 0 0 20px var(--neon-dim);
+    }
+
+    /* Hexagon Pattern Decoration */
+    .hex-pattern {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* Responsive */
     @media (max-width: 640px) {
       .bento-top,
-      .bento-middle,
-      .bento-bottom {
+      .bento-middle {
         grid-template-columns: 1fr;
       }
 
@@ -808,57 +1066,94 @@
 
       .session-row {
         grid-template-columns: 35px 85px 1fr;
-        font-size: 12px;
+        font-size: 11px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Hexagon Pattern -->
+  <svg class="hex-pattern" viewBox="0 0 100 100">
+    <pattern id="hexagons" width="28" height="49" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+      <polygon points="14,0 28,8 28,24 14,32 0,24 0,8" fill="none" stroke="currentColor" stroke-width="0.5"/>
+      <polygon points="14,33 28,41 28,57 14,65 0,57 0,41" fill="none" stroke="currentColor" stroke-width="0.5"/>
+      <polygon points="28,16.5 42,24.5 42,40.5 28,48.5 14,40.5 14,24.5" fill="none" stroke="currentColor" stroke-width="0.5"/>
+    </pattern>
+    <rect width="100%" height="100%" fill="url(#hexagons)" stroke="var(--violet)"/>
+  </svg>
+
+  <!-- Warning Banner (shown during class) -->
+  <div class="warning-banner" id="warningBanner">
+    <span class="warning-text">PATTERN BLUE // CLASS IN SESSION</span>
+  </div>
+
+  <!-- Boot Screen -->
   <div class="boot-screen" id="bootScreen">
+    <div class="nerv-logo">
+      <svg viewBox="0 0 100 100">
+        <polygon points="50,5 95,75 5,75" fill="none" stroke="currentColor" stroke-width="3"/>
+        <polygon points="50,20 80,65 20,65" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="50" cy="48" r="8" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="boot-title">NERV</div>
+    <div class="boot-subtitle">EDUCATION TERMINAL SYSTEM</div>
     <div class="boot-box">
       <div class="boot-header">
-        <span class="boot-title">CLSFLW SYSTM</span>
-        <span class="boot-code">v2.4.1</span>
+        <span class="boot-header-title">MAGI SYSTEM BOOT</span>
+        <span class="boot-code">VER 3.14159</span>
       </div>
       <div class="boot-log" id="bootLog"></div>
       <div class="boot-progress"><div id="bootBar"></div></div>
     </div>
   </div>
 
+  <!-- Main App -->
   <div class="app">
+    <!-- Header -->
+    <div class="header-section">
+      <div class="header-top">
+        <div class="system-id">NERV<span>//</span>EDU</div>
+        <div class="jp-badge">神経教育</div>
+      </div>
+    </div>
+
     <div class="bento-grid">
       <!-- Top Row -->
       <div class="bento-top">
-        <div class="card card-coral hero-card" id="heroCard">
-          <!-- Filled by JS -->
+        <div class="card card-neon hero-card" id="heroCard">
+          <div class="corner-marks" style="color: var(--bg);"></div>
         </div>
-        <div class="card card-dark info-card" id="infoCard">
-          <!-- Filled by JS -->
-        </div>
+        <div class="card card-outline-violet status-card" id="statusCard"></div>
       </div>
 
       <!-- Middle Row -->
       <div class="bento-middle">
-        <div class="card card-cream status-card" id="nextCard">
-          <!-- Filled by JS -->
-        </div>
-        <div class="card card-sage status-card" id="statsCard">
-          <!-- Filled by JS -->
+        <div class="card card-outline-neon sync-card" id="syncCard"></div>
+        <div class="card card-violet data-card" id="dataCard">
+          <div class="corner-marks" style="color: var(--bg);"></div>
         </div>
       </div>
 
       <!-- Tabs -->
-      <div class="tabs-row" id="tabs"></div>
+      <div class="tabs-section">
+        <div class="tabs-header">
+          <span class="tabs-title">OPERATION MODE</span>
+          <span class="tabs-code">MAGI-01</span>
+        </div>
+        <div class="tabs-row" id="tabs"></div>
+      </div>
 
       <!-- Content -->
       <main id="content"></main>
     </div>
   </div>
 
+  <!-- Bottom Nav -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="today">Today</button>
     <button class="nav-btn" data-tab="week">Week</button>
-    <button class="nav-btn" data-tab="subjects">Subjects</button>
+    <button class="nav-btn" data-tab="subjects">Units</button>
     <button class="nav-btn" data-tab="alerts">Alerts</button>
   </nav>
 
@@ -886,6 +1181,7 @@
 
     const DAY_NAMES = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const SHORT_DAY = ['', 'MON', 'TUE', 'WED', 'THU', 'FRI'];
+    const JP_DAYS = ['', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日'];
 
     let currentTab = 'today';
     let reminderTimers = [];
@@ -932,10 +1228,17 @@
       return list.find(c => toMinutes(c.s) > mins) || list.find(c => toMinutes(c.s) <= mins && toMinutes(c.e) >= mins) || null;
     }
 
+    function currentClass(now = new Date()) {
+      const day = getWeekday(now);
+      if (!day) return null;
+      const mins = getNowMinutes(now);
+      return classesForDay(day).find(c => toMinutes(c.s) <= mins && toMinutes(c.e) >= mins) || null;
+    }
+
     function countdownLabel(c, now = new Date()) {
       if (!c) return '--:--';
       const status = getStatus(c, now);
-      if (status === 'now') return 'LIVE';
+      if (status === 'now') return 'SYNC';
       const delta = toMinutes(c.s) - getNowMinutes(now);
       const h = Math.floor(delta / 60);
       const m = delta % 60;
@@ -946,68 +1249,69 @@
       const now = new Date();
       const day = getWeekday(now);
       const next = nextClassForToday(now);
+      const current = currentClass(now);
       const todayClasses = day ? classesForDay(day) : [];
       const timeStr = now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-      // Hero Card (Coral)
+      // Update warning banner
+      const warningBanner = document.getElementById('warningBanner');
+      if (current) {
+        warningBanner.classList.add('active');
+      } else {
+        warningBanner.classList.remove('active');
+      }
+
+      // Hero Card (Neon)
       document.getElementById('heroCard').innerHTML = `
-        <span class="corner-code">#${String(now.getDate()).padStart(2, '0')}${String(now.getMonth() + 1).padStart(2, '0')}</span>
+        <div class="corner-marks" style="color: var(--bg);"></div>
         <div>
-          <div class="label">CLSFLW</div>
-          <div class="title-giant" style="margin-top: 8px;">
-            ${day ? SHORT_DAY[day] : 'OFF'}
-          </div>
+          <div class="hero-label">TERMINAL // ${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}</div>
+          <div class="hero-day">${day ? SHORT_DAY[day] : 'OFF'}</div>
         </div>
         <div>
-          <div class="code-text" style="opacity: 0.7;">${now.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}</div>
+          <div class="hero-date">${now.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}</div>
         </div>
-        <span class="jp-text">時間割</span>
+        <span class="hero-jp">${day ? JP_DAYS[day] : '週末'}</span>
       `;
 
-      // Info Card (Dark)
-      document.getElementById('infoCard').innerHTML = `
-        <div class="arrow-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M7 17L17 7M17 7H7M17 7V17"/>
-          </svg>
+      // Status Card
+      document.getElementById('statusCard').innerHTML = `
+        <div>
+          <div class="status-label">SYSTEM TIME</div>
+          <div class="status-time">${timeStr}</div>
         </div>
         <div>
-          <div class="label" style="color: var(--muted);">SYSTEM TIME</div>
-          <div class="data-value" style="margin-top: 8px; color: var(--cream);">${timeStr}</div>
-        </div>
-        <div>
-          <div class="label" style="color: var(--muted);">STATUS</div>
-          <div class="status-indicator" style="margin-top: 6px;">
-            <span class="status-dot" style="color: ${day ? 'var(--sage)' : 'var(--muted)'}"></span>
-            <span class="code-text" style="color: var(--cream);">${day ? 'ACTIVE' : 'STANDBY'}</span>
+          <div class="status-label">OPERATIONAL STATUS</div>
+          <div class="status-row">
+            <span class="status-dot" style="${!day ? 'background: var(--text-dim); box-shadow: none;' : ''}"></span>
+            <span class="status-text" style="${!day ? 'color: var(--text-dim);' : ''}">${day ? 'ACTIVE' : 'STANDBY'}</span>
           </div>
         </div>
       `;
 
-      // Next Card (Cream)
-      document.getElementById('nextCard').innerHTML = `
+      // Sync Card
+      const syncTarget = current || next;
+      document.getElementById('syncCard').innerHTML = `
         <div>
-          <div class="label">NEXT MODULE</div>
-          <div class="title-medium" style="margin-top: 8px;">${next ? next.name : (day ? 'CLEAR' : 'WEEKEND')}</div>
+          <div class="sync-label" style="color: var(--neon);">NEXT TARGET</div>
+          <div class="sync-title" style="color: var(--text);">${syncTarget ? syncTarget.name : (day ? 'ALL CLEAR' : 'WEEKEND MODE')}</div>
+          <div class="sync-meta" style="color: var(--text-dim); margin-top: 4px;">${syncTarget ? `${syncTarget.type} // ${syncTarget.loc}` : 'NO PENDING OPERATIONS'}</div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-          <div>
-            <div class="code-text" style="opacity: 0.6;">${next ? `${next.type} // ${next.loc}` : 'NO PENDING CLASSES'}</div>
-          </div>
-          <div class="data-value">${countdownLabel(next, now)}</div>
+        <div>
+          <div class="sync-countdown" style="color: var(--neon);">${countdownLabel(syncTarget, now)}</div>
         </div>
       `;
 
-      // Stats Card (Sage)
-      document.getElementById('statsCard').innerHTML = `
+      // Data Card (Violet)
+      document.getElementById('dataCard').innerHTML = `
+        <div class="corner-marks" style="color: var(--bg);"></div>
         <div>
-          <div class="label">TODAY</div>
-          <div class="title-large" style="margin-top: 4px;">${todayClasses.length}</div>
+          <div class="data-label">UNITS TODAY</div>
+          <div class="data-value">${String(todayClasses.length).padStart(2, '0')}</div>
         </div>
         <div>
-          <div class="code-text" style="opacity: 0.7;">CLASSES SCHEDULED</div>
           <div class="data-bars">
-            ${Array(5).fill(0).map((_, i) => `<div class="data-bar ${i < todayClasses.length ? 'active' : ''}" style="height: ${20 + Math.random() * 30}px;"></div>`).join('')}
+            ${Array(5).fill(0).map((_, i) => `<div class="data-bar ${i < todayClasses.length ? 'active' : ''}"></div>`).join('')}
           </div>
         </div>
       `;
@@ -1027,7 +1331,7 @@
               <span class="class-code ${c.code}">${c.code}</span>
             </div>
             <div class="class-meta">
-              ${status === 'now' ? '<span class="live-tag">LIVE</span>' : ''}
+              ${status === 'now' ? '<span class="live-tag">SYNC</span>' : ''}
               <span>${c.type}</span>
               <span>${c.loc}</span>
               <span>${c.staff.split(',')[0]}</span>
@@ -1043,15 +1347,15 @@
       return `
         <div class="content-panel">
           <div class="panel-header">
-            <span class="panel-title">Today Log</span>
+            <span class="panel-title">DAILY OPERATIONS</span>
             <span class="panel-badge">${day ? SHORT_DAY[day] : 'OFF'}</span>
           </div>
           <div class="panel-content">
             ${!day
-              ? '<div class="empty-state"><div class="empty-title">WEEKEND MODE</div><div class="empty-text">No classes scheduled. System on standby.</div></div>'
+              ? '<div class="empty-state"><div class="empty-title">STANDBY MODE</div><div class="empty-text">No operations scheduled. System in maintenance.</div></div>'
               : list.length
                 ? list.map(c => classCard(c)).join('')
-                : '<div class="empty-state"><div class="empty-title">CLEAR</div><div class="empty-text">No classes scheduled for today.</div></div>'
+                : '<div class="empty-state"><div class="empty-title">ALL CLEAR</div><div class="empty-text">No operations scheduled for today.</div></div>'
             }
           </div>
         </div>
@@ -1063,7 +1367,7 @@
       let html = `
         <div class="content-panel">
           <div class="panel-header">
-            <span class="panel-title">Week Matrix</span>
+            <span class="panel-title">WEEKLY MATRIX</span>
             <span class="panel-badge">MON-FRI</span>
           </div>
           <div class="panel-content">
@@ -1073,13 +1377,13 @@
         html += `
           <div class="week-day-card">
             <div class="week-day-header">
-              <div class="week-day-name">${DAY_NAMES[d]} ${today === d ? '<span class="today-badge">TODAY</span>' : ''}</div>
-              <div class="week-day-count">${list.length} CLASS${list.length === 1 ? '' : 'ES'}</div>
+              <div class="week-day-name">${DAY_NAMES[d]} ${today === d ? '<span class="today-badge">ACTIVE</span>' : ''}</div>
+              <div class="week-day-count">${list.length} UNIT${list.length === 1 ? '' : 'S'}</div>
             </div>
             <div class="week-day-content">
               ${list.length
                 ? list.map(c => classCard(c, today === d ? null : 'other')).join('')
-                : '<div class="empty-state"><div class="empty-text">No classes.</div></div>'
+                : '<div class="empty-state"><div class="empty-text">No operations.</div></div>'
               }
             </div>
           </div>
@@ -1094,7 +1398,7 @@
       return `
         <div class="content-panel">
           <div class="panel-header">
-            <span class="panel-title">Subject Index</span>
+            <span class="panel-title">UNIT DATABASE</span>
             <span class="panel-badge">${codes.length} LOADED</span>
           </div>
           <div class="panel-content">
@@ -1148,7 +1452,7 @@
         const delay = (toMinutes(c.s) - 15 - mins) * 60000;
         if (delay > 0) {
           const timer = setTimeout(() => {
-            new Notification('Class in 15 minutes', {
+            new Notification('NERV ALERT: Operation in 15 minutes', {
               body: `${c.name} / ${c.type} / ${c.loc} / starts ${formatTime(c.s)}`
             });
           }, delay);
@@ -1161,40 +1465,49 @@
       const permission = 'Notification' in window ? Notification.permission : 'unsupported';
       const statusText =
         permission === 'granted'
-          ? 'NOTIFICATIONS: ON'
+          ? 'STATUS: ENABLED'
           : permission === 'denied'
-            ? 'NOTIFICATIONS: BLOCKED'
+            ? 'STATUS: BLOCKED'
             : permission === 'unsupported'
-              ? 'NOTIFICATIONS: UNSUPPORTED'
-              : 'NOTIFICATIONS: OFF';
+              ? 'STATUS: UNSUPPORTED'
+              : 'STATUS: DISABLED';
 
       return `
         <div class="content-panel">
           <div class="panel-header">
-            <span class="panel-title">Alerts</span>
-            <span class="panel-badge">SYSTEM</span>
+            <span class="panel-title">ALERT SYSTEM</span>
+            <span class="panel-badge">MAGI</span>
           </div>
           <div class="panel-content">
             <div class="alert-card">
-              <div class="alert-title">Class Reminders</div>
-              <div class="alert-text">
-                Enable local notifications to receive alerts 15 minutes before each class. Reminders are generated daily for the current schedule.
+              <div class="alert-header">
+                <div class="alert-icon">!</div>
+                <div class="alert-title">Operation Reminders</div>
               </div>
-              <button class="action-btn" onclick="requestNotifications()">ENABLE REMINDERS</button>
-              <div class="status-text">${statusText}</div>
+              <div class="alert-text">
+                Enable MAGI notification system to receive alerts 15 minutes before each scheduled operation. Reminders are generated daily based on current schedule data.
+              </div>
+              <button class="action-btn" onclick="requestNotifications()">ACTIVATE ALERT SYSTEM</button>
+              <div class="alert-status">${statusText}</div>
             </div>
 
             <div class="alert-card">
-              <div class="alert-title">Night-Before Messaging</div>
+              <div class="alert-header">
+                <div class="alert-icon">N</div>
+                <div class="alert-title">Night-Before Protocol</div>
+              </div>
               <div class="alert-text">
-                External automation required for scheduled DMs. Connect via Telegram bot or IFTTT for 10 PM nightly schedule summaries.
+                External automation required for scheduled transmissions. Connect via Telegram bot or IFTTT for 22:00 daily briefing summaries.
               </div>
             </div>
 
             <div class="alert-card">
-              <div class="alert-title">iOS Installation</div>
+              <div class="alert-header">
+                <div class="alert-icon">i</div>
+                <div class="alert-title">Terminal Installation</div>
+              </div>
               <div class="alert-text">
-                Safari > Share > Add to Home Screen. The app will run in standalone mode with full-screen display and offline capability.
+                Safari > Share > Add to Home Screen. Terminal will run in standalone mode with full-screen display and offline capability.
               </div>
             </div>
           </div>
@@ -1206,7 +1519,7 @@
       const defs = [
         ['today', 'Today'],
         ['week', 'Week'],
-        ['subjects', 'Subjects'],
+        ['subjects', 'Units'],
         ['alerts', 'Alerts']
       ];
 
@@ -1249,11 +1562,16 @@
       const bootBar = document.getElementById('bootBar');
 
       const lines = [
-        'INIT CLSFLW CORE...',
-        'SYNC TIMETABLE MODULE...',
-        'LOAD SUBJECT INDEX...',
-        'MOUNT INTERFACE...',
-        'READY.'
+        'MAGI SYSTEM INITIALIZING...',
+        'MELCHIOR-1 ........ OK',
+        'BALTHASAR-2 ....... OK',
+        'CASPER-3 .......... OK',
+        'SYNC RATE: 100.0%',
+        'LOADING SCHEDULE DATABASE...',
+        'TERMINAL READY.',
+        '',
+        'God\'s in His heaven.',
+        'All\'s right with the world.'
       ];
 
       let index = 0;
@@ -1266,9 +1584,9 @@
           clearInterval(interval);
           setTimeout(() => {
             bootScreen.classList.add('hidden');
-          }, 400);
+          }, 600);
         }
-      }, 200);
+      }, 180);
     }
 
     setInterval(() => {
